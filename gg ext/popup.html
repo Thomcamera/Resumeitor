@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Resumidor</title>
+    <script src="popup.js"></script>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <div id="content">
+        <h1>Resumir artículo</h1>
+        <textarea id="input"></textarea>
+        <button id="summarize" onclick="summarizeArticle()">Resumir</button>
+        <a id="download" onclick="downloadSummary()" href="#" style="display:none">Descargar resumen</a>
+      </div>
+      
+      <script>
+        function summarizeArticle() {
+          // Obtiene el contenido del textarea
+          var input = document.getElementById("input").value;
+          
+          // Envía una solicitud POST al servidor para resumir el artículo
+          fetch("https://api.meaningcloud.com/summarization-1.0",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/x-www-form-urlencoded"
+              },
+              body: "key=c53c7b8364f1bf297ee8c1d604ba52ba&txt=" + encodeURIComponent(input) + "&sentences=3"
+            })
+            .then(response => response.json())
+            .then(data => {
+              // Actualiza el textarea con el resumen
+              document.getElementById("input").value = data.summary;
+              
+              // Habilita el enlace de descarga
+              document.getElementById("download").style.display = "inline";
+            })
+            .catch(error => console.log(error));
+        }
+      
+        function downloadSummary() {
+          // Obtiene el contenido del textarea
+          var summary = document.getElementById("input").value;
+          
+          // Crea un objeto Blob con el contenido del resumen
+          var blob = new Blob([summary], { type: "text/plain;charset=utf-8" });
+          
+          // Crea un objeto URL para descargar el resumen
+          var url = URL.createObjectURL(blob);
+          
+          // Crea un enlace para descargar el resumen y hace clic en él automáticamente
+          var link = document.createElement("a");
+          link.href = url;
+          link.download = "resumen.txt";
+          link.click();
+        }
+      </script>
+      
+  </body>
+</html>
+
